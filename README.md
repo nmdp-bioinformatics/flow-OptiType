@@ -1,7 +1,7 @@
 # flow-OptiType
-Run BAM files through OptiType in parallele with nextflow and docker. 
+Run BAM files through OptiType in parallel with nextflow and docker. 
 
-For more information on OptiType please refer to the oficial [repository](https://github.com/FRED-2/OptiType).
+For more information on OptiType please refer to the official [repository](https://github.com/FRED-2/OptiType).
 
 ### Setup
 ```bash
