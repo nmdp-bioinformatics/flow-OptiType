@@ -30,7 +30,39 @@
 optiref=file("/usr/local/bin/OptiType/data/hla_reference_dna.fasta")
 outfile = file("${params.outfile}")
 bamglob = "${params.bamdir}/*.bam"
+datatype = "${params.datatype}"
 bamfiles = Channel.fromPath(bamglob).ifEmpty { error "cannot find any reads matching ${bamglob}" }.map { path -> tuple(sample(path), path) }
+
+
+/*  Help section (option --help in input)  */
+if (params.help) {
+    log.info ''
+    log.info '---------------------------------------------------------------'
+    log.info 'NEXTFLOW OPTITYPE'
+    log.info '---------------------------------------------------------------'
+    log.info ''
+    log.info 'Usage: '
+    log.info 'nextflow run main.nf -with-docker nmdpbioinformatics/flow-OptiType --bamdir bamfiles/ [--datatype rna] [--outfile datafile.txt]'
+    log.info ''
+    log.info 'Mandatory arguments:'
+    log.info '    --bamdir      FOLDER             Folder containing BAM FILES'
+    log.info 'Options:'
+    log.info '    --datatype    STRING             Type of sequence data (default : dna)'
+    log.info '    --outfile     STRING             Name of output file (default : typing_results.txt)'
+    log.info ''
+    exit 1
+}
+
+/* Software information */
+log.info ''
+log.info '---------------------------------------------------------------'
+log.info 'NEXTFLOW OPTITYPE'
+log.info '---------------------------------------------------------------'
+log.info "Input BAM folder   (--bamdir)          : ${params.bamdir}"
+log.info "Sequence data type (--datatype)        : ${params.datatype}"
+log.info "Output file name   (--outfile)         : ${params.outfile}"
+log.info "\n"
+
 
 // Extract pair reads to fq files
 process bam2fastq {
@@ -92,10 +124,11 @@ process optitype {
     stdout optioutput
 
   """
-  OptiTypePipeline.py -i ${fq1} ${fq1} --id ${subid} --dna --outdir na
+  OptiTypePipeline.py -i ${fq1} ${fq1} --id ${subid} --${datatype} --outdir na
   """
 }
 
+// Print out results to output file
 optioutput
 .collectFile() {  typing ->
        [ "typing_results.txt", typing ]
