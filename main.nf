@@ -20,19 +20,21 @@
 
     > http://www.gnu.org/licenses/lgpl.html
 
-
-    ./nextflow run nmdp-bioinformatics/flow-Optitype \
-      --with-docker nmdpbioinformatics/flow-OptiType \
-      --bamdir /location/of/bamfiles --outfile typing_results.txt
-
+  ./nextflow run nmdp-bioinformatics/flow-Optitype \
+    --with-docker nmdpbioinformatics/flow-optitype \
+    --outfile hli-optitype.csv \
+    --bamdir s3://bucket/s3/data \
+    --datatype dna
 */
+
+params.help = ''
+params.datatype = 'dna'
 
 optiref=file("/usr/local/bin/OptiType/data/hla_reference_dna.fasta")
 outfile = file("${params.outfile}")
 bamglob = "${params.bamdir}/*.bam"
 datatype = "${params.datatype}"
 bamfiles = Channel.fromPath(bamglob).ifEmpty { error "cannot find any reads matching ${bamglob}" }.map { path -> tuple(sample(path), path) }
-
 
 /*  Help section (option --help in input)  */
 if (params.help) {
@@ -42,7 +44,7 @@ if (params.help) {
     log.info '---------------------------------------------------------------'
     log.info ''
     log.info 'Usage: '
-    log.info 'nextflow run main.nf -with-docker nmdpbioinformatics/flow-OptiType --bamdir bamfiles/ [--datatype rna] [--outfile datafile.txt]'
+    log.info 'nextflow run main.nf -with-docker nmdpbioinformatics/flow-optitype --bamdir bamfiles/ [--datatype rna] [--outfile datafile.txt]'
     log.info ''
     log.info 'Mandatory arguments:'
     log.info '    --bamdir      FOLDER             Folder containing BAM FILES'
@@ -58,11 +60,12 @@ log.info ''
 log.info '---------------------------------------------------------------'
 log.info 'NEXTFLOW OPTITYPE'
 log.info '---------------------------------------------------------------'
-log.info "Input BAM folder   (--bamdir)          : ${params.bamdir}"
-log.info "Sequence data type (--datatype)        : ${params.datatype}"
-log.info "Output file name   (--outfile)         : ${params.outfile}"
+log.info "Input BAM folder   (--bamdir)    : ${params.bamdir}"
+log.info "Sequence data type (--datatype)  : ${params.datatype}"
+log.info "Output file name   (--outfile)   : ${params.outfile}"
+log.info "Project                          : $workflow.projectDir"
+log.info "Git info                         : $workflow.repository - $workflow.revision [$workflow.commitId]"
 log.info "\n"
-
 
 // Extract pair reads to fq files
 process bam2fastq {
@@ -82,6 +85,7 @@ process bam2fastq {
 
 //Filter the fq files
 process razarEnd1 {
+  errorStrategy 'ignore'
   tag{ subid }
   
   input:
@@ -97,6 +101,7 @@ process razarEnd1 {
 
 //Filter the fq files
 process razarEnd2 {
+  errorStrategy 'ignore'
   tag{ subid }
   
   input:
@@ -116,6 +121,7 @@ fastqFiltered = razarFilteredEnd1.phase(razarFilteredEnd2).map{ fq1, fq2 -> [ fq
 
 //Run OptiType
 process optitype {
+  errorStrategy 'ignore'
   tag{ subid }
 
   input:
@@ -134,6 +140,13 @@ optioutput
        [ "typing_results.txt", typing ]
    }
 .subscribe { file -> copy(file) }
+
+// On completion
+workflow.onComplete {
+    println "Pipeline completed at: $workflow.complete"
+    println "Duration    : ${workflow.duration}"
+    println "Execution status: ${ workflow.success ? 'OK' : 'failed' }"
+}
 
 def copy (file) { 
   log.info "Copying ${file.name} into: $outfile"
