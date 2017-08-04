@@ -35,14 +35,14 @@ RUN apt-get update && apt-get install -y software-properties-common \
 
 #HLA Typing
 #OptiType dependecies
-RUN curl -O https://support.hdfgroup.org/ftp/HDF5/current18/bin/linux-centos7-x86_64-gcc485/hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared.tar.gz \
-    && tar -xvf hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared.tar.gz \
-    && mv hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared/bin/* /usr/local/bin/ \
-    && mv hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared/lib/* /usr/local/lib/ \
-    && mv hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared/include/* /usr/local/include/ \
-    && mv hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared/share/* /usr/local/share/ \
-    && rm -rf hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared/ \
-    && rm -f hdf5-1.8.18-linux-centos7-x86_64-gcc485-shared.tar.gz
+RUN curl -O https://support.hdfgroup.org/ftp/HDF5/current18/bin/linux-centos7-x86_64-gcc485/hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared.tar.gz \
+    && tar -xvf hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared.tar.gz \
+    && mv hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared/bin/* /usr/local/bin/ \
+    && mv hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared/lib/* /usr/local/lib/ \
+    && mv hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared/include/* /usr/local/include/ \
+    && mv hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared/share/* /usr/local/share/ \
+    && rm -rf hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared/ \
+    && rm -f hdf5-1.8.19-linux-centos7-x86_64-gcc485-shared.tar.gz
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV HDF5_DIR /usr/local/
@@ -81,7 +81,12 @@ RUN git clone https://github.com/seqan/seqan.git seqan-src \
     && cp bin/razers3 /usr/local/bin \
     && cd .. \
     && rm -rf seqan-src
+
+RUN conda install samtools -y
+
 ENV PATH=/usr/local/bin/OptiType:$PATH
+ENV PATH=/opt/conda/bin:$PATH
+
 # Change user to back to biodocker
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.25.0/bedtools-2.25.0.tar.gz \
     && tar -zxvf bedtools-2.25.0.tar.gz \

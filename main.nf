@@ -79,7 +79,7 @@ process bam2fastq {
     set subid, file("${subid}.end2.fq") into fastq2
 
   """
-  bedtools bamtofastq -i ${bamfile} -fq ${subid}.end1.fq -fq2 ${subid}.end2.fq 
+  samtools sort -n ${bamfile} | samtools bam2fq -1 ${subid}.end1.fq -2 ${subid}.ende.fq -N -O -
   """
 }
 
@@ -130,7 +130,7 @@ process optitype {
     stdout optioutput
 
   """
-  OptiTypePipeline.py -i ${fq1} ${fq1} --id ${subid} --${datatype} --outdir na
+  OptiTypePipeline.py -i ${fq1} ${fq2} --id ${subid} --${datatype} --outdir na
   """
 }
 
