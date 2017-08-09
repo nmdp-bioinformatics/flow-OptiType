@@ -79,7 +79,7 @@ process bam2fastq {
     set subid, file("${subid}.end2.fq") into fastq2
 
   """
-  samtools sort -n ${bamfile} | samtools bam2fq -1 ${subid}.end1.fq -2 ${subid}.ende.fq -N -O -
+  samtools sort -n ${bamfile} | samtools bam2fq -1 ${subid}.end1.fq -2 ${subid}.end2.fq -N -O -
   """
 }
 
