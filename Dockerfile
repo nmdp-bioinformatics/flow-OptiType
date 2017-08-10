@@ -46,6 +46,8 @@ RUN curl -O https://support.hdfgroup.org/ftp/HDF5/current18/bin/linux-centos7-x8
 
 ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 ENV HDF5_DIR /usr/local/
+ENV PATH=/usr/local/bin/OptiType:$PATH
+ENV PATH=/opt/conda/bin:$PATH
 
 RUN pip install --upgrade pip && pip install \
     numpy \
@@ -83,9 +85,6 @@ RUN git clone https://github.com/seqan/seqan.git seqan-src \
     && rm -rf seqan-src
 
 RUN conda install samtools -y
-
-ENV PATH=/usr/local/bin/OptiType:$PATH
-ENV PATH=/opt/conda/bin:$PATH
 
 # Change user to back to biodocker
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.25.0/bedtools-2.25.0.tar.gz \
